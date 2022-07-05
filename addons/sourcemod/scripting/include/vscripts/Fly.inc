@@ -254,7 +254,7 @@ methodmap Fly_base < Basic
 			this.SetFloat("fCurrent_distance_to_target", val);
 		}
 	}
-	public void MoveTowardsTarget(const float[3] fly, const float[3] target)
+	public void MoveTowardsTarget(const float fly[3], const float target[3])
 	{
 		float targetDir[3];
 		SubtractVectors(target, fly, targetDir);
@@ -520,7 +520,7 @@ methodmap Fly < Fly_Small
 		}
 	}
 	
-	public void TeleportGrabbedPlayers(const float[3] position)
+	public void TeleportGrabbedPlayers(const float position[3])
 	{
 		for (int i = 0; i < this.grabbed_players.Length; i++)
 		{
@@ -780,7 +780,7 @@ methodmap Fly_End < Fly_base
 			this.SetHandle("lGrabbed_players", list);
 		}
 	}
-	public void TeleportGrabbedPlayers(const float[3] position)
+	public void TeleportGrabbedPlayers(const float position[3])
 	{
 		for (int i = 0; i < this.grabbed_players.Length; i++)
 		{
@@ -992,7 +992,7 @@ methodmap Fly_End < Fly_base
 	//}
 //}
 
-public void ChasePlayer(Fly_Small fly, const float[3] flyPos)
+public void ChasePlayer(Fly_Small fly, const float flyPos[3])
 {
 	fly.retarget -= 0.01;
 	float targetPos[3];
@@ -1012,7 +1012,7 @@ public void ChasePlayer(Fly_Small fly, const float[3] flyPos)
 	}
 }
 
-public bool IsTargetInSight(int entity, const float[3] flyPos, const float[3] targetPos)
+public bool IsTargetInSight(int entity, const float flyPos[3], const float targetPos[3])
 {
 	return TraceLine(flyPos, targetPos, entity) >= 1.0;    
 }
@@ -1081,7 +1081,7 @@ public void MoveForward(Fly_base fly, float blocker1, float blocker2)
 	}
 }
 
-public void MoveDir(Fly_base fly, float[3] dir)
+public void MoveDir(Fly_base fly, float dir[3])
 {
 	if(!IsValidEntity(fly.entity))
 		return;
@@ -1100,7 +1100,7 @@ public void MoveDir(Fly_base fly, float[3] dir)
 	SetOrigin(fly.entity, newpos);
 }
 
-public void GetNewDir(Fly_base fly, const float[3] targetDir, const float[3] currentDir, float[3] newDir)
+public void GetNewDir(Fly_base fly, const float targetDir[3], const float currentDir[3], float newDir[3])
 {
 	if(!IsValidEntity(fly.entity))
 		return;
@@ -1137,7 +1137,7 @@ public void GetNewDir(Fly_base fly, const float[3] targetDir, const float[3] cur
 	}
 }
 
-public void Rotate2D(const float[3] vector, const float angle, float[3] buffer)
+public void Rotate2D(const float vector[3], const float angle, float buffer[3])
 {
 	buffer[0] = vector[0] * Cosine(angle) - vector[1] * Sine(angle);
 	buffer[1] = vector[0] * Sine(angle) + vector[1] * Cosine(angle);

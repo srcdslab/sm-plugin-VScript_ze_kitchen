@@ -6,6 +6,7 @@
 
 #include <sourcemod>
 #include <sdktools>
+#include <sdkhooks>
 #include <vscripts/Fly>
 
 #pragma newdecls required
@@ -241,91 +242,114 @@ public void OnChangeEggsCount(const char[] output, int caller, int activator, fl
 	}
 }
 
-public void OnEntitySpawned(int entity, const char[] classname)
+public void OnEntityCreated(int entity, const char[] classname)
 {
-	if(!bValidMap)
+	if (!bValidMap)
 		return;
 
-	if(IsValidEntity(entity))
+	if (!CanTestFeatures() || GetFeatureStatus(FeatureType_Native, "SDKHook_OnEntitySpawned") != FeatureStatus_Available)
+		SDKHook(entity, SDKHook_SpawnPost, OnEntitySpawnedPost);
+}
+
+public void OnEntitySpawnedPost(int entity)
+{
+	if (!IsValidEntity(entity))
+		return;
+
+	// 1 frame later required to get some properties
+	RequestFrame(ProcessEntitySpawned, entity);
+}
+
+public void OnEntitySpawned(int entity, const char[] classname)
+{
+	ProcessEntitySpawned(entity);
+}
+
+stock void ProcessEntitySpawned(int entity)
+{
+	if (!bValidMap || !IsValidEntity(entity))
+		return;
+
+	char classname[64];
+	GetEntityClassname(entity, classname, sizeof(classname));
+
+	if(strcmp(classname, "prop_dynamic") == 0)
 	{
-		if(strcmp(classname, "prop_dynamic") == 0)
+		char sName[128];
+		GetEntPropString(entity, Prop_Data, "m_iName", sName, sizeof(sName));
+		if(!sName[0])
+			return;
+		if(StrContains(sName, "fly_small_model") != -1)
 		{
-			char sName[128];
-	 		GetEntPropString(entity, Prop_Data, "m_iName", sName, sizeof(sName));
-	 		if(!sName[0])
-	 			return;
-	 		if(StrContains(sName, "fly_small_model") != -1)
-	 		{
-	 			Fly_Small fly_small = new Fly_Small(entity);
-	 			g_aFlySmall.Push(fly_small);
-	 			if(StrContains(sName, "fly_small_model_map") != -1)
-	 			{
-	 				CreateTimer(5.0, StartDelay, fly_small);
-	 			}
-	 			else
-	 			{
-	 				fly_small.Start();
-	 			}
-	 			HookSingleEntityOutput(entity, "OnUser1", OnFlySmallDie, true);
-	 		}
-	 		//else if(strcmp(sName, "1_fly_hovno") == 0)
-	 		//{
-	 			//
-				//HookSingleEntityOutput(entity, "OnUser1", OnFlyEndHovnoInit1, true);
-	 		//}
-	 		//else if(strcmp(sName, "2_fly_hovno") == 0)
-	 		//{
-	 			//
-				//HookSingleEntityOutput(entity, "OnUser1", OnFlyEndHovnoInit2, true);
-	 		//}
-	 		//else if(strcmp(sName, "3_fly_hovno") == 0)
-	 		//{
-	 			//
-				//HookSingleEntityOutput(entity, "OnUser1", OnFlyEndHovnoInit3, true);
-	 		//}
-	 		//else if(strcmp(sName, "4_fly_hovno") == 0)
-	 		//{
-	 			//
-				//HookSingleEntityOutput(entity, "OnUser1", OnFlyEndHovnoInit4, true);
-	 		//}
-	 		//else if(strcmp(sName, "5_fly_hovno") == 0)
-	 		//{
-	 			//
-				//HookSingleEntityOutput(entity, "OnUser1", OnFlyEndHovnoInit5, true);
-	 		//}
-	 	}
-	 	else if(strcmp(classname, "func_button") == 0)
-	 	{
-	 		char sName[128];
-	 		GetEntPropString(entity, Prop_Data, "m_iName", sName, sizeof(sName));
-	 		if(!sName[0])
-	 			return;
-	 		if(StrContains(sName, "george_cades_syr_button") != -1)
-	 		{
-				HookSingleEntityOutput(entity, "OnUser2", OnPlayerPickUp);
-				HookSingleEntityOutput(entity, "OnPressed", OnButtonPressed);
-	 		}
-	 		else if(StrContains(sName, "george_cades_toast_button") != -1)
-	 		{
-				HookSingleEntityOutput(entity, "OnUser2", OnPlayerPickUp);
-				HookSingleEntityOutput(entity, "OnPressed", OnButtonPressed);
-	 		}
-	 		else if(StrContains(sName, "george_cades_sunka_button") != -1)
-	 		{
-				HookSingleEntityOutput(entity, "OnUser2", OnPlayerPickUp);
-				HookSingleEntityOutput(entity, "OnPressed", OnButtonPressed);
-	 		}
-	 		else if(StrContains(sName, "george_cades_korenka_button") != -1)
-	 		{
-				HookSingleEntityOutput(entity, "OnUser2", OnPlayerPickUp);
-				HookSingleEntityOutput(entity, "OnPressed", OnButtonPressed);
-	 		}
-	 		else if(StrContains(sName, "george_cades_houba_button") != -1)
-	 		{
-				HookSingleEntityOutput(entity, "OnUser2", OnPlayerPickUp);
-				HookSingleEntityOutput(entity, "OnPressed", OnButtonPressed);
-	 		}
-	 	}
+			Fly_Small fly_small = new Fly_Small(entity);
+			g_aFlySmall.Push(fly_small);
+			if(StrContains(sName, "fly_small_model_map") != -1)
+			{
+				CreateTimer(5.0, StartDelay, fly_small);
+			}
+			else
+			{
+				fly_small.Start();
+			}
+			HookSingleEntityOutput(entity, "OnUser1", OnFlySmallDie, true);
+		}
+		//else if(strcmp(sName, "1_fly_hovno") == 0)
+		//{
+			//
+			//HookSingleEntityOutput(entity, "OnUser1", OnFlyEndHovnoInit1, true);
+		//}
+		//else if(strcmp(sName, "2_fly_hovno") == 0)
+		//{
+			//
+			//HookSingleEntityOutput(entity, "OnUser1", OnFlyEndHovnoInit2, true);
+		//}
+		//else if(strcmp(sName, "3_fly_hovno") == 0)
+		//{
+			//
+			//HookSingleEntityOutput(entity, "OnUser1", OnFlyEndHovnoInit3, true);
+		//}
+		//else if(strcmp(sName, "4_fly_hovno") == 0)
+		//{
+			//
+			//HookSingleEntityOutput(entity, "OnUser1", OnFlyEndHovnoInit4, true);
+		//}
+		//else if(strcmp(sName, "5_fly_hovno") == 0)
+		//{
+			//
+			//HookSingleEntityOutput(entity, "OnUser1", OnFlyEndHovnoInit5, true);
+		//}
+	}
+	else if(strcmp(classname, "func_button") == 0)
+	{
+		char sName[128];
+		GetEntPropString(entity, Prop_Data, "m_iName", sName, sizeof(sName));
+		if(!sName[0])
+			return;
+		if(StrContains(sName, "george_cades_syr_button") != -1)
+		{
+			HookSingleEntityOutput(entity, "OnUser2", OnPlayerPickUp);
+			HookSingleEntityOutput(entity, "OnPressed", OnButtonPressed);
+		}
+		else if(StrContains(sName, "george_cades_toast_button") != -1)
+		{
+			HookSingleEntityOutput(entity, "OnUser2", OnPlayerPickUp);
+			HookSingleEntityOutput(entity, "OnPressed", OnButtonPressed);
+		}
+		else if(StrContains(sName, "george_cades_sunka_button") != -1)
+		{
+			HookSingleEntityOutput(entity, "OnUser2", OnPlayerPickUp);
+			HookSingleEntityOutput(entity, "OnPressed", OnButtonPressed);
+		}
+		else if(StrContains(sName, "george_cades_korenka_button") != -1)
+		{
+			HookSingleEntityOutput(entity, "OnUser2", OnPlayerPickUp);
+			HookSingleEntityOutput(entity, "OnPressed", OnButtonPressed);
+		}
+		else if(StrContains(sName, "george_cades_houba_button") != -1)
+		{
+			HookSingleEntityOutput(entity, "OnUser2", OnPlayerPickUp);
+			HookSingleEntityOutput(entity, "OnPressed", OnButtonPressed);
+		}
 	}
 }
 
@@ -355,7 +379,13 @@ public void OnFlySmallDie(const char[] output, int caller, int activator, float 
 
 public void OnEntityDestroyed(int entity)
 {
-	if(!bValidMap || !IsValidEntity(entity))
+	if(!bValidMap)
+		return;
+
+	if (!CanTestFeatures() || GetFeatureStatus(FeatureType_Native, "SDKHook_OnEntitySpawned") != FeatureStatus_Available)
+		SDKUnhook(entity, SDKHook_SpawnPost, OnEntitySpawnedPost);
+
+	if(!IsValidEntity(entity))
 		return;
 
 	char sClassname[64];

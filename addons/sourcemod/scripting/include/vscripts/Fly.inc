@@ -328,7 +328,7 @@ methodmap Fly_Small < Fly_base
 		orig[2] += 40.0;
 		SetOrigin(this.entity, orig);
 		
-		CreateTimer(0.0, Tick_Cb, this, TIMER_FLAG_NO_MAPCHANGE);
+		CreateTimer(0.1, Tick_Cb, this, TIMER_FLAG_NO_MAPCHANGE);
 	}
 	
 	public void Tick()
@@ -373,7 +373,7 @@ methodmap Fly_Small < Fly_base
 				MoveDir(view_as<Fly_base>(this), mydir);
 			}
 		}
-		CreateTimer(0.0, Tick_Cb, this, TIMER_FLAG_NO_MAPCHANGE);
+		CreateTimer(0.1, Tick_Cb, this, TIMER_FLAG_NO_MAPCHANGE);
 	}
 	public void Die()
 	{
@@ -542,7 +542,7 @@ methodmap Fly < Fly_Small
 		this.max_spawned_eggs = this.players_in_arena / 6;
 		this.started = true;
 		EntFireByIndex(this.entity, "SetAnimation", "fly", "0.00", -1);
-		CreateTimer(0.0, Tick_Cb, this, TIMER_FLAG_NO_MAPCHANGE);
+		CreateTimer(0.1, Tick_Cb, this, TIMER_FLAG_NO_MAPCHANGE);
 	}
 
 	public void KillFly()
@@ -677,7 +677,7 @@ methodmap Fly < Fly_Small
 				MoveDir(view_as<Fly_base>(this),  mydir);
 			}
 		}
-		CreateTimer(0.0, Tick_Cb, this, TIMER_FLAG_NO_MAPCHANGE);
+		CreateTimer(0.1, Tick_Cb, this, TIMER_FLAG_NO_MAPCHANGE);
 	}
 	
 	public void SetReturn(bool state)
@@ -801,7 +801,7 @@ methodmap Fly_End < Fly_base
 	public void Start()
 	{
 		EntFireByIndex(this.entity, "SetAnimation", "fly", "0.00", -1);
-		CreateTimer(0.0, Tick_Cb, this, TIMER_FLAG_NO_MAPCHANGE);
+		CreateTimer(0.1, Tick_Cb, this, TIMER_FLAG_NO_MAPCHANGE);
 	}
 	public void Tick()
 	{
@@ -893,7 +893,7 @@ methodmap Fly_End < Fly_base
 		}
 		
 		if (!this.end)
-			CreateTimer(0.0, Tick_Cb, this, TIMER_FLAG_NO_MAPCHANGE);
+			CreateTimer(0.1, Tick_Cb, this, TIMER_FLAG_NO_MAPCHANGE);
 	}
 }
 
@@ -939,7 +939,7 @@ methodmap Fly_End < Fly_base
 		//this.path = p;
 		//this.stop_on_last_node = stop;
 		//EntFireByIndex(this.entity, "SetAnimation", "fly", "0.00", -1);
-		//CreateTimer(0.0, Tick_Cb, this, TIMER_FLAG_NO_MAPCHANGE);
+		//CreateTimer(0.1, Tick_Cb, this, TIMER_FLAG_NO_MAPCHANGE);
 	//}
 	//
 	//public void Tick()
@@ -987,7 +987,7 @@ methodmap Fly_End < Fly_base
 		//{
 			//this.MoveTowardsTarget(flyPos, targetNode);
 			//this.previous_distance_to_target = this.current_distance_to_target;	
-			//CreateTimer(0.0, Tick_Cb, this, TIMER_FLAG_NO_MAPCHANGE);
+			//CreateTimer(0.1, Tick_Cb, this, TIMER_FLAG_NO_MAPCHANGE);
 		//}
 	//}
 //}

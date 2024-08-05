@@ -5,6 +5,7 @@
 #define MAP_NAME "ze_Kitchen_v2s"
 
 #include <sourcemod>
+#include <sdkhooks>
 #include <vscripts/Fly>
 
 #pragma newdecls required
@@ -41,7 +42,6 @@ public void OnMapStart()
 	else
     {
         GetPluginFilename(INVALID_HANDLE, sCurMap, sizeof(sCurMap));
-
         ServerCommand("sm plugins unload %s", sCurMap);
     }
 }
@@ -252,12 +252,33 @@ public void OnChangeEggsCount(const char[] output, int caller, int activator, fl
 		g_Fly.IncrementEggCount(-1);
 }
 
-public void OnEntitySpawned(int entity, const char[] classname)
+public void OnEntityCreated(int entity, const char[] classname)
+{
+	if (!bValidMap)
+		return;
+
+	if (!CanTestFeatures() || GetFeatureStatus(FeatureType_Native, "SDKHook_OnEntitySpawned") != FeatureStatus_Available)
+		SDKHook(entity, SDKHook_SpawnPost, OnEntitySpawnedPost);
+}
+
+public void OnEntitySpawnedPost(int entity)
+{
+	if (!IsValidEntity(entity))
+		return;
+
+	// 1 frame later required to get some properties
+	RequestFrame(ProcessEntitySpawned, entity);
+}
+
+public void ProcessEntitySpawned(int entity)
 {
 	if(!bValidMap)
 		return;
 	if(IsValidEntity(entity))
 	{
+		char classname[64];
+		GetEntityClassname(entity, classname, sizeof(classname));
+
 		char sName[MAX_ENT_NAME];
 	 	GetEntPropString(entity, Prop_Data, "m_iName", sName, sizeof(sName));
 	 	if(!sName[0])
@@ -268,8 +289,10 @@ public void OnEntitySpawned(int entity, const char[] classname)
 	 		{
 	 			Fly_Small fly_small = new Fly_Small(entity);
 	 			g_aFlySmall.Push(fly_small);
-	 			if(StrContains(sName, "fly_small_model_map") != -1) CreateTimer(5.0, StartDelay, EntIndexToEntRef(entity));
-	 			else fly_small.Start();
+	 			if(StrContains(sName, "fly_small_model_map") != -1)
+					CreateTimer(5.0, StartDelay, EntIndexToEntRef(entity));
+	 			else
+					fly_small.Start();
 	 			HookSingleEntityOutput(entity, "OnUser1", OnFlySmallDie, true);
 	 		}
 	 		//else if(strcmp(sName, "1_fly_hovno") == 0)
@@ -350,6 +373,7 @@ public Action StartDelay(Handle timer, int entity)
 			}
 		}
 	}
+
 	return Plugin_Stop;
 }
 
@@ -368,8 +392,15 @@ public void OnFlySmallDie(const char[] output, int caller, int activator, float 
 
 public void OnEntityDestroyed(int entity)
 {
-	if(!IsValidEntity(entity) || !bValidMap)
+	if(!bValidMap)
 		return;
+
+	if (!CanTestFeatures() || GetFeatureStatus(FeatureType_Native, "SDKHook_OnEntitySpawned") != FeatureStatus_Available)
+		SDKUnhook(entity, SDKHook_SpawnPost, OnEntitySpawnedPost);
+
+	if(!IsValidEntity(entity))
+		return;
+
 	char sClassname[64];
 	GetEntityClassname(entity, sClassname, sizeof(sClassname));
 	if(strcmp(sClassname, "prop_dynamic") == 0)

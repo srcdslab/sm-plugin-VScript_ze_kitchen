@@ -263,6 +263,11 @@ public void OnEntityCreated(int entity, const char[] classname)
 	SDKHook(entity, SDKHook_SpawnPost, OnEntitySpawnedPost);
 }
 
+public void OnEntitySpawned(int entity, const char[] classname)
+{
+	ProcessEntitySpawned(entity);
+}
+
 public void OnEntitySpawnedPost(int entity)
 {
 	if (!IsValidEntity(entity))
@@ -276,6 +281,7 @@ public void ProcessEntitySpawned(int entity)
 {
 	if(!bValidMap)
 		return;
+
 	if(IsValidEntity(entity))
 	{
 		char classname[64];

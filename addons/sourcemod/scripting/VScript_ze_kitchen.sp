@@ -1,7 +1,7 @@
 #pragma semicolon 1
 
 #define PLUGIN_AUTHOR "Cloud Strife"
-#define PLUGIN_VERSION "1.2"
+#define PLUGIN_VERSION "1.2.1"
 #define MAP_NAME "ze_Kitchen_v2s"
 
 #include <sourcemod>
@@ -257,8 +257,10 @@ public void OnEntityCreated(int entity, const char[] classname)
 	if (!bValidMap)
 		return;
 
-	if (!CanTestFeatures() || GetFeatureStatus(FeatureType_Native, "SDKHook_OnEntitySpawned") != FeatureStatus_Available)
-		SDKHook(entity, SDKHook_SpawnPost, OnEntitySpawnedPost);
+	if (CanTestFeatures() && GetFeatureStatus(FeatureType_Native, "SDKHook_OnEntitySpawned") == FeatureStatus_Available)
+		return;
+
+	SDKHook(entity, SDKHook_SpawnPost, OnEntitySpawnedPost);
 }
 
 public void OnEntitySpawnedPost(int entity)
